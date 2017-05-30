@@ -92,14 +92,36 @@ int main() {
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
 
+
+  Eigen::VectorXd eptsx(2);
+  Eigen::VectorXd eptsy(2);
+  eptsx << ptsx[0],ptsx[1];
+  eptsy << ptsy[0],ptsy[1];
+  auto coeffs = polyfit(eptsx, eptsy, 1);
+
+  double cte = polyeval(coeffs, 0) - py;
+
+  double epsi = -atan(coeffs[1]);
+
+
+  Eigen::VectorXd state(6);
+  state << px, py, psi, v, cte, epsi;
+
+    auto vars = mpc.Solve(state, coeffs);
+
+    state << vars[0], vars[1], vars[2], vars[3], vars[4], vars[5];
+    std::cout << state << std::endl;
+    std::cout << "steering:" << vars[6] << std::endl;
+    std::cout << "vel:" << vars[3] << std::endl;
+
           /*
           * TODO: Calculate steeering angle and throttle using MPC.
           *
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
+          double steer_value = vars[6];
+          double throttle_value=vars[3];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
