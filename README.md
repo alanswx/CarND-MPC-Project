@@ -17,7 +17,8 @@ x,y,and psi are set to zero, since the car is always at the origin.
 we are given v, and calculate cte (cross track error) and epsi (speed error)
 
 Here are the update functions:
-`
+
+```
   fg[2 + x_start + i] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
   fg[2 + y_start + i] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
   fg[2 + psi_start + i] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
@@ -26,7 +27,7 @@ Here are the update functions:
           cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
   fg[2 + epsi_start + i] =
           epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
-`          
+```         
           
 ## Timestep Length and Elapsed Duration (N & dt)
 
@@ -50,10 +51,10 @@ Smaller dt's cause the car to jerk back and forth.  Too large a dt and it can't 
 
 The waypoints are converted to the vehicle's coordinate system:
 
-`
+```
  double veh_x = (ptsx[i] - px) * cos(-1 * psi) - (ptsy[i] - py) * sin(-1 * psi);
  double veh_y = (ptsx[i] - px) * sin(-1 * psi) + (ptsy[i] - py) * cos(-1 * psi);
-`
+```
 
 Then we feed them into the MPC solve function and find an optimal solution. We feed those values into an array so we can plot the MPC predicted path at the next timesteps and see where it will predict us to go. It works well in most parts of the track, around sharp curves the future predictions can get a bit far from where we would like them to be.
 
