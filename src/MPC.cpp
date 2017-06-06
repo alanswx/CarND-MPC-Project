@@ -9,12 +9,14 @@ using CppAD::AD;
 // and the timestep evaluation frequency or evaluation
 // period to 0.05.
 
-/*
-size_t N = 25;
-double dt = 0.05;
-*/
+
+//size_t N = 12;
+//double dt = 0.1;
+
 size_t N = 10;
 double dt = 0.1;
+//size_t N = 30;
+//double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -118,8 +120,11 @@ class FG_eval {
       AD<double> delta0 = vars[delta_start + i];
       AD<double> a0 = vars[a_start + i];
 
-      AD<double> f0 = coeffs[0] + coeffs[1] * x0;
-      AD<double> psides0 = CppAD::atan(coeffs[1]);
+//      AD<double> f0 = coeffs[0] + coeffs[1] * x0;
+ //     AD<double> psides0 = CppAD::atan(coeffs[1]);
+      // Evaluate 3rd order polynomial 
+      AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * CppAD::pow(x0, 2) + coeffs[3] * CppAD::pow(x0, 3);
+      AD<double> psides0 = CppAD::atan(coeffs[1] + 2 * coeffs[2] * x0 + 3 * coeffs[3] * CppAD::pow(x0, 2));
 
       // Here's `x` to get you started.
       // The idea here is to constraint this value to be 0.
@@ -237,7 +242,8 @@ vector<double> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs) {
   options += "Integer print_level  0\n";
   options += "Sparse  true        forward\n";
   options += "Sparse  true        reverse\n";
-  options += "Numeric max_cpu_time          0.05\n";
+  //options += "Numeric max_cpu_time          0.05\n";
+  options += "Numeric max_cpu_time          0.5\n";
 
   // place to return solution
   CppAD::ipopt::solve_result<Dvector> solution;
@@ -254,9 +260,14 @@ vector<double> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs) {
   ok &= solution.status == CppAD::ipopt::solve_result<Dvector>::success;
 
   auto cost = solution.obj_value;
-  std::cout << "Cost " << cost << std::endl;
+  //std::cout << "Cost " << cost << std::endl;
 
  vector<double> result = {solution.x[delta_start], solution.x[a_start]};
+
+//std::cout << "delta_start:" << solution.x[delta_start] << std::endl;
+//std::cout << "a_start:" << solution.x[a_start] << std::endl;
+
+
     for (int i = 0; i < N; i++) {
         result.push_back(solution.x[x_start + i]);
         result.push_back(solution.x[y_start + i]);

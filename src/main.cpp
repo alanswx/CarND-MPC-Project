@@ -111,18 +111,23 @@ int main() {
   //double cte = polyeval(coeffs, 0) - py;
   double cte = polyeval(coeffs, 0) ;
 
-  double epsi = -atan(coeffs[1]);
+  double epsi = -1*atan(coeffs[1]);
 
 
   Eigen::VectorXd state(6);
   //state << px, py, psi, v, cte, epsi;
  // px,py,psi are all 0 because we are at the origin of vehicle coords
-  state << 0, 0, 0, v, cte, epsi;
 
+  state << 0.0, 0.0, 0.0, v, cte, epsi;
+//cout << "state " << endl;
+//cout << state << endl;
+//cout << "coeffs" << endl;
+//cout << coeffs<< endl;
+//cout << "solve:" << endl;
     auto vars = mpc.Solve(state, coeffs);
 
     state << vars[0], vars[1], vars[2], vars[3], vars[4], vars[5];
-    std::cout << state << std::endl;
+    //std::cout << state << std::endl;
     std::cout << "steering:" << vars[0] << std::endl;
     std::cout << "vel:" << vars[1] << std::endl;
 
@@ -150,10 +155,10 @@ int main() {
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
-          int N = (vars.size()-2) / 2;
-          for (int i=0; i < N*2; i+=2) {
-            mpc_x_vals.push_back(vars[2 + i]);
-            mpc_y_vals.push_back(vars[2 + i +1 ]);
+          int N = (vars.size()-2) ;
+          for (int i=2; i < N; i+=2) {
+            mpc_x_vals.push_back(vars[ i]);
+            mpc_y_vals.push_back(vars[ i +1 ]);
           }
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
