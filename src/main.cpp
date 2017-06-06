@@ -107,36 +107,23 @@ int main() {
          Eigen::Map<Eigen::VectorXd> yval(&veh_ptsy[0], veh_ptsy.size());
          Eigen::VectorXd coeffs = polyfit(xvals, yval, 3);
 
-  // py should actually be 0 since we are at the origin in vehicle coords
-  //double cte = polyeval(coeffs, 0) - py;
-  double cte = polyeval(coeffs, 0) ;
+         // py should actually be 0 since we are at the origin in vehicle coords
+         double cte = polyeval(coeffs, 0) ;
 
-  double epsi = -1*atan(coeffs[1]);
+         double epsi = -1*atan(coeffs[1]);
+         Eigen::VectorXd state(6);
 
+         //state << px, py, psi, v, cte, epsi;
+         // px,py,psi are all 0 because we are at the origin of vehicle coords 
+         state << 0.0, 0.0, 0.0, v, cte, epsi;
 
-  Eigen::VectorXd state(6);
-  //state << px, py, psi, v, cte, epsi;
- // px,py,psi are all 0 because we are at the origin of vehicle coords
+         auto vars = mpc.Solve(state, coeffs);
 
-  state << 0.0, 0.0, 0.0, v, cte, epsi;
-//cout << "state " << endl;
-//cout << state << endl;
-//cout << "coeffs" << endl;
-//cout << coeffs<< endl;
-//cout << "solve:" << endl;
-    auto vars = mpc.Solve(state, coeffs);
+         state << vars[0], vars[1], vars[2], vars[3], vars[4], vars[5];
+         std::cout << "steering:" << vars[0] << std::endl;
+         std::cout << "vel:" << vars[1] << std::endl;
 
-    state << vars[0], vars[1], vars[2], vars[3], vars[4], vars[5];
-    //std::cout << state << std::endl;
-    std::cout << "steering:" << vars[0] << std::endl;
-    std::cout << "vel:" << vars[1] << std::endl;
-
-          /*
-          * TODO: Calculate steeering angle and throttle using MPC.
-          *
-          * Both are in between [-1, 1].
-          *
-          */
+          
           double steer_value = vars[0];
           double throttle_value=vars[1];
           if (throttle_value < 0 ) throttle_value=0;
